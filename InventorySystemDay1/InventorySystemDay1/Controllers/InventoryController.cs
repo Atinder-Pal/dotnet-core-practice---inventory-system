@@ -36,5 +36,29 @@ namespace InventorySystemDay1.Controllers
             }
             return result;
         }
+
+        [HttpPatch("Discontinue")]
+        public ActionResult<Product> ProductDiscontinue_PATCH(string productID)
+        {
+            ActionResult<Product> result;
+            try
+            {
+                result = new ProductController().DiscontinueProductByID(productID);
+            }
+            catch (ValidationException e)
+            {
+                string error = "Error(s) During Execution: " +
+                    e.ValidationExceptions.Select(x => x.Message)
+                    .Aggregate((x, y) => x + ", " + y);
+
+                result = BadRequest(error);
+            }
+            catch (Exception e)
+            {
+                result = StatusCode(500, "Unknown error occurred, please try again later.");
+            }
+            return result;
+
+        }
     }
 }

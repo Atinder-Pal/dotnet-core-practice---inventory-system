@@ -58,7 +58,29 @@ namespace InventorySystemDay1.Controllers
                 result = StatusCode(500, "Unknown error occurred, please try again later.");
             }
             return result;
-
         }
+        [HttpPatch("Receive")]
+        public ActionResult<Product> ProductReceive_PATCH(string productID, string quantity)
+        {
+            ActionResult<Product> result;
+            try
+            {
+                result = new ProductController().ReceiveProductByID(productID,quantity);
+            }
+            catch (ValidationException e)
+            {
+                string error = "Error(s) During Receiving Product: " +
+                    e.ValidationExceptions.Select(x => x.Message)
+                    .Aggregate((x, y) => x + ", " + y);
+
+                result = BadRequest(error);
+            }
+            catch (Exception e)
+            {
+                result = StatusCode(500, "Unknown error occurred, please try again later.");
+            }
+            return result;
+        }
+
     }
 }

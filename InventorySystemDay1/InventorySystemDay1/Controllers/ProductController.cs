@@ -64,7 +64,7 @@ namespace InventorySystemDay1.Controllers
                 {
                     if(!bool.TryParse(discontinued, out parsedDiscontinued))
                     {
-                        exception.ValidationExceptions.Add(new Exception("Value of Discontinued should be eithe true or false"));
+                        exception.ValidationExceptions.Add(new Exception("Value of Discontinued should be either true or false"));
                     }                    
                 }
                 if (exception.ValidationExceptions.Count > 0)
@@ -243,6 +243,33 @@ namespace InventorySystemDay1.Controllers
                 context.SaveChanges();
             }
             return result;
+        }
+
+        public List<Product> GetInventory(string showDiscontinuedItems)
+        {
+            List<Product> result = new List<Product>();
+            bool parsedDiscontinued = false;
+            ValidationException exception = new ValidationException();
+
+            showDiscontinuedItems = (string.IsNullOrEmpty(showDiscontinuedItems) || string.IsNullOrWhiteSpace(showDiscontinuedItems)) ? null : showDiscontinuedItems;
+
+            using (InventoryContext context = new InventoryContext())
+            {
+                if (string.IsNullOrWhiteSpace(showDiscontinuedItems))
+                {
+                    parsedDiscontinued = true;
+                }
+                else if (!bool.TryParse(showDiscontinuedItems, out parsedDiscontinued))
+                {
+                    exception.ValidationExceptions.Add(new Exception("Value of Discontinued should be either true or false"));
+                }
+                if (exception.ValidationExceptions.Count > 0)
+                {
+                    throw exception;
+                }                
+                result = parsedDiscontinued ? context.Products.ToList() : context.Products.Where(x => x.Discontinued == false).ToList();                
+                return result.Any() ? result : null;
+            }
         }
      }
 }

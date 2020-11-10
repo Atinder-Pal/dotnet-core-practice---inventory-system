@@ -126,5 +126,27 @@ namespace InventorySystemDay1.Controllers
             }
             return result;
         }
+        [HttpGet("GetProduct")]
+        public ActionResult<Product> ProductGetProduct_GET(string productID)
+        {
+            ActionResult<Product> result;
+            try
+            {
+                result = new ProductController().GetProductByID(productID);
+            }
+            catch (ValidationException e)
+            {
+                string error = "Error(s) During Sending Product: " +
+                    e.ValidationExceptions.Select(x => x.Message)
+                    .Aggregate((x, y) => x + ", " + y);
+
+                result = BadRequest(error);
+            }
+            catch (Exception e)
+            {
+                result = StatusCode(500, "Unknown error occurred, please try again later.");
+            }
+            return result;
+        }
     }
 }

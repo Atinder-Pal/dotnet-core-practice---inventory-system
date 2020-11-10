@@ -267,9 +267,36 @@ namespace InventorySystemDay1.Controllers
                 {
                     throw exception;
                 }                
-                result = parsedDiscontinued ? context.Products.ToList() : context.Products.Where(x => x.Discontinued == false).ToList();                
-                return result.Any() ? result : null;
+                result = parsedDiscontinued ? context.Products.ToList() : context.Products.Where(x => x.Discontinued == false).ToList();                 
             }
+            return result.Any() ? result : null;
         }
-     }
+        public Product GetProductByID(string productID)
+        {
+            Product result;
+            int parsedID = 0;
+            ValidationException exception = new ValidationException();
+
+            productID = (string.IsNullOrEmpty(productID) || string.IsNullOrWhiteSpace(productID)) ? null : productID;
+
+            using (InventoryContext context = new InventoryContext())
+            {
+                if (string.IsNullOrWhiteSpace(productID))
+                {
+                    exception.ValidationExceptions.Add(new ArgumentNullException(nameof(productID), nameof(productID) + " is null."));
+                }
+                else if (!int.TryParse(productID, out parsedID))
+                {
+                    exception.ValidationExceptions.Add(new Exception("ID is not valid"));
+                }                    
+                
+                if (exception.ValidationExceptions.Count > 0)
+                {
+                    throw exception;
+                }
+                result = context.Products.Where(x => x.ID == parsedID).SingleOrDefault();               
+            }
+            return result;
+        }
+    }
 }

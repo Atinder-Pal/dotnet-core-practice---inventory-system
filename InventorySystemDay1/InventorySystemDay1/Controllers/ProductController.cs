@@ -183,5 +183,66 @@ namespace InventorySystemDay1.Controllers
             }
             return result;
         }
+        public Product SendProductByID(string productID, string quantity)
+        {
+            Product result;
+            int parsedID = 0, parsedQuantity = 0;
+            ValidationException exception = new ValidationException();
+
+            productID = (string.IsNullOrEmpty(productID) || string.IsNullOrWhiteSpace(productID)) ? null : productID;
+            quantity = (string.IsNullOrEmpty(quantity) || string.IsNullOrWhiteSpace(quantity)) ? null : quantity;
+            using (InventoryContext context = new InventoryContext())
+            {
+                if (string.IsNullOrWhiteSpace(productID))
+                {
+                    exception.ValidationExceptions.Add(new ArgumentNullException(nameof(productID), nameof(productID) + " is null."));
+                }
+                else
+                {
+                    if (!int.TryParse(productID, out parsedID))
+                    {
+                        exception.ValidationExceptions.Add(new Exception("ID is not valid"));
+                    }
+                    else
+                    {
+                        if (!context.Products.Any(x => x.ID == parsedID))
+                        {
+                            exception.ValidationExceptions.Add(new Exception("Product doesnot exist"));
+                        }
+                    }
+                }
+                if (string.IsNullOrWhiteSpace(quantity))
+                {
+                    exception.ValidationExceptions.Add(new ArgumentNullException(nameof(quantity), nameof(quantity) + " is null."));
+                }
+                else
+                {
+                    if (!int.TryParse(quantity, out parsedQuantity))
+                    {
+                        exception.ValidationExceptions.Add(new Exception("Value of Quantity is not valid"));
+                    }
+                    else if (parsedQuantity <= 0)
+                    {
+                        exception.ValidationExceptions.Add(new Exception("Quantity to be sent can not be negative or zero"));
+                    }
+                    else
+                    {
+                        int currentQty = context.Products.Where(x => x.ID == parsedID).SingleOrDefault().Quantity;
+                        if (currentQty < parsedQuantity)
+                        {
+                            exception.ValidationExceptions.Add(new Exception($"Quantity: {parsedQuantity} requested to be sent is greater than total quantity: {currentQty} in inventory"));
+                        }
+                    }
+                }
+                if (exception.ValidationExceptions.Count > 0)
+                {
+                    throw exception;
+                }
+                result = context.Products.Where(x => x.ID == parsedID).Single();
+                result.Quantity -= parsedQuantity;
+                context.SaveChanges();
+            }
+            return result;
+        }
      }
 }

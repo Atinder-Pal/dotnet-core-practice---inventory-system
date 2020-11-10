@@ -267,15 +267,15 @@ namespace InventorySystemDay1.Controllers
                 if ((!string.IsNullOrWhiteSpace(orderBy)) && orderBy.ToLower() != "name" && orderBy.ToLower() != "quantity")
                 {
                     exception.ValidationExceptions.Add(new Exception("You can either orderby Name or Quantity. input correct value for orderBy"));
-                }                
+                }
                 if (exception.ValidationExceptions.Count > 0)
                 {
                     throw exception;
-                }     
-                if(!string.IsNullOrWhiteSpace(orderBy) && orderBy.ToLower() == "name")
+                }
+                if (!string.IsNullOrWhiteSpace(orderBy) && orderBy.ToLower() == "name")
                     result = parsedDiscontinued ? context.Products.OrderBy(x => x.Name).ToList() : context.Products.Where(x => x.Discontinued == false).OrderBy(x => x.Name).ToList();
-                else if(!string.IsNullOrWhiteSpace(orderBy) && orderBy.ToLower() == "quantity")               
-                    result = parsedDiscontinued ? context.Products.OrderByDescending(x => x.Quantity).ToList() : context.Products.Where(x => x.Discontinued == false).OrderByDescending(x=>x.Quantity).ToList();                
+                else if (!string.IsNullOrWhiteSpace(orderBy) && orderBy.ToLower() == "quantity")
+                    result = parsedDiscontinued ? context.Products.OrderByDescending(x => x.Quantity).ToList() : context.Products.Where(x => x.Discontinued == false).OrderByDescending(x => x.Quantity).ToList();
                 else
                     result = parsedDiscontinued ? context.Products.ToList() : context.Products.Where(x => x.Discontinued == false).ToList();
             }

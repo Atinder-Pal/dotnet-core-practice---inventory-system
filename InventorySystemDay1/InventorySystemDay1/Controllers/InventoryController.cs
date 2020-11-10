@@ -105,12 +105,12 @@ namespace InventorySystemDay1.Controllers
             return result;
         }
         [HttpGet("GetInventory")]
-        public ActionResult<List<Product>> ProductGetInventory_GET(string showDiscontinuedItems)
+        public ActionResult<List<Product>> ProductGetInventory_GET(string showDiscontinuedItems, string orderBy)
         {
             ActionResult<List<Product>> result;
             try
             {
-                result = new ProductController().GetInventory(showDiscontinuedItems);
+                result = new ProductController().GetInventory(showDiscontinuedItems, orderBy);
             }
             catch (ValidationException e)
             {

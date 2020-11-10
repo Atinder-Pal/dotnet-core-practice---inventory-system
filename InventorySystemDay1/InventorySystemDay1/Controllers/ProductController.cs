@@ -245,13 +245,14 @@ namespace InventorySystemDay1.Controllers
             return result;
         }
 
-        public List<Product> GetInventory(string showDiscontinuedItems)
+        public List<Product> GetInventory(string showDiscontinuedItems, string orderBy)
         {
             List<Product> result = new List<Product>();
             bool parsedDiscontinued = false;
             ValidationException exception = new ValidationException();
 
             showDiscontinuedItems = (string.IsNullOrEmpty(showDiscontinuedItems) || string.IsNullOrWhiteSpace(showDiscontinuedItems)) ? null : showDiscontinuedItems;
+            orderBy = (string.IsNullOrEmpty(orderBy) || string.IsNullOrWhiteSpace(orderBy)) ? null : orderBy;
 
             using (InventoryContext context = new InventoryContext())
             {
@@ -263,11 +264,20 @@ namespace InventorySystemDay1.Controllers
                 {
                     exception.ValidationExceptions.Add(new Exception("Value of Discontinued should be either true or false"));
                 }
+                if ((!string.IsNullOrWhiteSpace(orderBy)) && orderBy.ToLower() != "name" && orderBy.ToLower() != "quantity")
+                {
+                    exception.ValidationExceptions.Add(new Exception("You can either orderby Name or Quantity. input correct value for orderBy"));
+                }                
                 if (exception.ValidationExceptions.Count > 0)
                 {
                     throw exception;
-                }                
-                result = parsedDiscontinued ? context.Products.ToList() : context.Products.Where(x => x.Discontinued == false).ToList();                 
+                }     
+                if(!string.IsNullOrWhiteSpace(orderBy) && orderBy.ToLower() == "name")
+                    result = parsedDiscontinued ? context.Products.OrderBy(x => x.Name).ToList() : context.Products.Where(x => x.Discontinued == false).OrderBy(x => x.Name).ToList();
+                else if(!string.IsNullOrWhiteSpace(orderBy) && orderBy.ToLower() == "quantity")               
+                    result = parsedDiscontinued ? context.Products.OrderByDescending(x => x.Quantity).ToList() : context.Products.Where(x => x.Discontinued == false).OrderByDescending(x=>x.Quantity).ToList();                
+                else
+                    result = parsedDiscontinued ? context.Products.ToList() : context.Products.Where(x => x.Discontinued == false).ToList();
             }
             return result.Any() ? result : null;
         }
